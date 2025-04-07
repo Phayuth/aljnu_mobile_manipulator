@@ -16,19 +16,12 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 
-add_executable(talker src/publisher_member_function.cpp)
-ament_target_dependencies(talker rclcpp std_msgs)
 
-add_executable(listener src/subscriber_member_function.cpp)
-ament_target_dependencies(listener rclcpp std_msgs)
-
-add_executable(rcontroller src/cont.cpp)
-ament_target_dependencies(rcontroller rclcpp std_msgs geometry_msgs nav_msgs)
+add_executable(position_controller src/position_controller.cpp)
+ament_target_dependencies(position_controller rclcpp std_msgs geometry_msgs nav_msgs)
 
 install(TARGETS
-  talker
-  listener
-  rcontroller
+  position_controller
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
