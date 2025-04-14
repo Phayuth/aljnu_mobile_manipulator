@@ -1,0 +1,21 @@
+backstepping_controller:
+  ros__parameters:
+    limit:
+      v: 1.0
+      w: 1.0
+
+    controller_gain:
+      k1: 10.0
+      k2: 5.0
+      k3: 4.0
+      ka: 100.0
+      kb: 3000.0
+      dTol: 0.1
+
+    topic:
+      pub:
+        twist: /cmd_vel
+      sub:
+        odometry: /odom
+        goal: /goal_pose
+
