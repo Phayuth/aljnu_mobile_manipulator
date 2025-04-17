@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<robot name="middle_box" xmlns:xacro="http://ros.org/wiki.xacro">
+
+<xacro:property name="mb_x_size" value="0.6500" />
+<xacro:property name="mb_y_size" value="0.2700" />
+<xacro:property name="mb_z_size" value="0.3500" />
+
+<link name="mb_link">
+    <visual>
+        <origin xyz="0 0 ${mb_z_size/2}" rpy="0 0 0" />
+        <geometry>
+            <box size="${mb_x_size} ${mb_y_size} ${mb_z_size}" />
+        </geometry>
+        <material name="silver">
+            <color rgba="0.9 0.9 0.9 1.0"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="0 0 ${mb_z_size/2}" rpy="0 0 0" />
+        <geometry>
+            <box size="${mb_x_size} ${mb_y_size} ${mb_z_size}" />
+        </geometry>
+    </collision>
+</link>
+
+<joint name="base_link_to_middle_box_joint" type="fixed">
+    <origin xyz="0 0 ${base_z_size/2}" rpy="0 0 0"/>
+    <parent link="base_link" />
+    <child link="mb_link" />
+</joint>
+
+
+</robot>

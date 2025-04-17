@@ -5,5 +5,7 @@ class Bezier {
         /* data */
     public:
         Bezier(/* args */);
-        void compute(double t);
+        void compute_pose(double t);
+        void compute_velo(double t);
+        void compute_accl(double t);
 };

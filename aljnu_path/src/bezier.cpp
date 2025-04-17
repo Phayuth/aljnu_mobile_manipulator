@@ -1,10 +1,9 @@
 #include "aljnu_path/bezier.h"
 
-Bezier::Bezier(){
-
+Bezier::Bezier() {
 }
 
-void Bezier::compute(double t) {
+void Bezier::compute_pose(double t) {
     // control points
     double p0[2] = {0.0, 0.0};
     double p1[2] = {1.0, 1.0};
@@ -13,4 +12,10 @@ void Bezier::compute(double t) {
 
     double x = (1 - t) * ((1 - t) * ((1 - t) * p0[0] + t * p1[0]) + t * ((1 - t) * p1[0] + t * p2[0])) + t * ((1 - t) * ((1 - t) * p1[0] + t * p2[0]) + t * ((1 - t) * p2[0] + t * p3[0]));
     double y = (1 - t) * ((1 - t) * ((1 - t) * p0[1] + t * p1[1]) + t * ((1 - t) * p1[1] + t * p2[1])) + t * ((1 - t) * ((1 - t) * p1[1] + t * p2[1]) + t * ((1 - t) * p2[1] + t * p3[1]));
+}
+
+void Bezier::compute_velo(double t) {
+}
+
+void Bezier::compute_accl(double t) {
 }

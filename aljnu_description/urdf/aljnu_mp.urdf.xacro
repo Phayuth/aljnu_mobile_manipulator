@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot name="mobile_manipulator" xmlns:xacro="http://wiki.ros.org/xacro">
+
+    <!-- Include Scout V2 -->
+    <xacro:include filename="$(find aljnu_description)/urdf/scout_v2/scout_v2.xacro" />
+
+    <!-- Include UR5e -->
+    <xacro:include filename="$(find aljnu_description)/urdf/ur5e/ur.urdf.xacro" />
+
+    <!-- Include middle box -->
+    <xacro:include filename="$(find aljnu_description)/urdf/middle_box.urdf.xacro" />
+
+    <!-- Include robotiq85 -->
+    <xacro:include filename="$(find aljnu_description)/urdf/robotiq85/ur_to_robotiq_adapter.urdf.xacro" />
+    <!-- Attach Gripper to UR5e -->
+    <xacro:ur_to_robotiq prefix="" connected_to="ur5e_tool0" rotation="0.0" />
+    <xacro:include filename="$(find aljnu_description)/urdf/robotiq85/robotiq_85_macro.urdf.xacro" />
+    <xacro:robotiq_85_gripper prefix="" parent="gripper_mount_link">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:robotiq_85_gripper>
+
+
+</robot>
