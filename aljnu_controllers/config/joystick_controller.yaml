@@ -1,0 +1,8 @@
+joystick_controller:
+  ros__parameters:
+    joystick_device: "/dev/input/js0"
+    scale_linear_vel: 1.0
+    scale_angular_vel: 1.0
+    scale_linear_deadzone: 0.05
+    scale_angular_deadzone: 0.05
+    cmd_topic_name: /cmd_vel

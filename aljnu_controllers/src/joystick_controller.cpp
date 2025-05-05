@@ -10,7 +10,7 @@ JoystickController::JoystickController() : LifecycleNode("joystick_controller") 
 
     this->declare_parameter("joystick_device", "/dev/input/js0");
     this->declare_parameter("scale_linear_vel", 1.0);
-    this->declare_parameter("scale_angular_vel", -1.0);
+    this->declare_parameter("scale_angular_vel", 1.0);
     this->declare_parameter("scale_linear_deadzone", 0.05);
     this->declare_parameter("scale_angular_deadzone", 0.05);
     this->declare_parameter("cmd_topic_name", "/cmd_vel");
@@ -143,7 +143,7 @@ void JoystickController::joystick_read() {
                         linear = 0.0;
                     }
                 } else if (event.number == 3) {
-                    angular = scale_angular_vel_ * (event.value / 32767.0);
+                    angular = -scale_angular_vel_ * (event.value / 32767.0);
                     if ((-scale_angular_deadzone_ <= angular) && (angular <= scale_angular_deadzone_)) {
                         angular = 0.0;
                     }
