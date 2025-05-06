@@ -1,6 +1,7 @@
 #include "aljnu_controllers/admittance_controller.h"
 
-AdmittanceController::AdmittanceController() : LifecycleNode("admittance_controller") {
+AdmittanceController::AdmittanceController()
+    : LifecycleNode("admittance_controller") {
     RCLCPP_INFO(get_logger(), "In Constructor");
 
     this->declare_parameter<std::string>("ft_sensor_tf", "/ft_sensor");
@@ -8,10 +9,14 @@ AdmittanceController::AdmittanceController() : LifecycleNode("admittance_control
     this->declare_parameter<std::string>("joint_command_topic", "/command");
     this->declare_parameter<std::string>("ft_wrench_topic", "/wrench");
 
-    this->declare_parameter<std::vector<bool>>("applied_axis", {false, false, false, false, false, false});
-    this->declare_parameter<std::vector<double>>("mass", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
-    this->declare_parameter<std::vector<double>>("damping", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
-    this->declare_parameter<std::vector<double>>("stiffness", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    this->declare_parameter<std::vector<bool>>(
+        "applied_axis", {false, false, false, false, false, false});
+    this->declare_parameter<std::vector<double>>("mass",
+                                                 {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    this->declare_parameter<std::vector<double>>("damping",
+                                                 {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    this->declare_parameter<std::vector<double>>("stiffness",
+                                                 {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
 }
 
 AdmittanceController::~AdmittanceController() {
@@ -56,7 +61,8 @@ void AdmittanceController::wrench_callback(const WrenchMsg::SharedPtr msg) {
     pub_->publish(joint_value);
 }
 
-LifecycleCallbackReturn AdmittanceController::on_configure(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+AdmittanceController::on_configure(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In configure");
     (void)prev_state;
 
@@ -71,20 +77,27 @@ LifecycleCallbackReturn AdmittanceController::on_configure(const rclcpp_lifecycl
     stiffness = this->get_parameter("stiffness").as_double_array();
 
     pub_ = this->create_publisher<FloatMsg>(joint_command_topic_, 10);
-    sub_ = this->create_subscription<WrenchMsg>(ft_wrench_topic_, 10, std::bind(&AdmittanceController::wrench_callback, this, std::placeholders::_1));
+    sub_ = this->create_subscription<WrenchMsg>(
+        ft_wrench_topic_,
+        10,
+        std::bind(
+            &AdmittanceController::wrench_callback, this, std::placeholders::_1));
     if (false) {
         return LifecycleCallbackReturn::FAILURE;
     }
     return LifecycleCallbackReturn::SUCCESS;
 }
 
-LifecycleCallbackReturn AdmittanceController::on_activate(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+AdmittanceController::on_activate(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In activate");
-    rclcpp_lifecycle::LifecycleNode::on_activate(prev_state); // handle pub sub activate
+    rclcpp_lifecycle::LifecycleNode::on_activate(
+        prev_state); // handle pub sub activate
     return LifecycleCallbackReturn::SUCCESS;
 }
 
-LifecycleCallbackReturn AdmittanceController::on_cleanup(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+AdmittanceController::on_cleanup(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In cleanup");
     (void)prev_state;
     sub_.reset();
@@ -92,13 +105,15 @@ LifecycleCallbackReturn AdmittanceController::on_cleanup(const rclcpp_lifecycle:
     return LifecycleCallbackReturn::SUCCESS;
 }
 
-LifecycleCallbackReturn AdmittanceController::on_deactivate(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+AdmittanceController::on_deactivate(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In deactivate");
     rclcpp_lifecycle::LifecycleNode::on_deactivate(prev_state);
     return LifecycleCallbackReturn::SUCCESS;
 }
 
-LifecycleCallbackReturn AdmittanceController::on_shutdown(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+AdmittanceController::on_shutdown(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In shutdown");
     (void)prev_state;
     sub_.reset();
@@ -106,7 +121,8 @@ LifecycleCallbackReturn AdmittanceController::on_shutdown(const rclcpp_lifecycle
     return LifecycleCallbackReturn::SUCCESS;
 }
 
-LifecycleCallbackReturn AdmittanceController::on_error(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+AdmittanceController::on_error(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In error");
     (void)prev_state;
     return LifecycleCallbackReturn::SUCCESS;

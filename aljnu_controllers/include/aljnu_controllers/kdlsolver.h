@@ -24,7 +24,8 @@ class KDLSolver {
         std::unique_ptr<KDL::ChainJntToJacSolver> jac_solver;
 
     public:
-        KDLSolver(const std::string &urdf_file, const std::string &base, const std::string &tip);
+        KDLSolver(const std::string &urdf_file, const std::string &base,
+                  const std::string &tip);
         ~KDLSolver();
 
         bool fk_pos(KDL::JntArray &q, KDL::Frame &H);

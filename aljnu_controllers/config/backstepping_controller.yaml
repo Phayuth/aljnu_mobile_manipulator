@@ -18,4 +18,3 @@ backstepping_controller:
       sub:
         odometry: /odom
         goal: /goal_pose
-

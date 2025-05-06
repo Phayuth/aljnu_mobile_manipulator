@@ -7,7 +7,9 @@ import math
 class VelocityPublisher(Node):
     def __init__(self):
         super().__init__("position_publisher")
-        self.publisher_ = self.create_publisher(Float64MultiArray, "/forward_position_controller/commands", 10)
+        self.publisher_ = self.create_publisher(
+            Float64MultiArray, "/forward_position_controller/commands", 10
+        )
         self.timer = self.create_timer(0.01, self.publish_velocity)
         self.get_logger().info("Velocity Publisher Node has been started.")
 
@@ -16,7 +18,7 @@ class VelocityPublisher(Node):
         msg = Float64MultiArray()
         msg.data = [
             0.0,
-            -3.14/2,
+            -3.14 / 2,
             0.0,
             0.0,
             0.0,

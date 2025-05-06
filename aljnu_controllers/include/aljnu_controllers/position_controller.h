@@ -41,7 +41,8 @@ class PositionController : public rclcpp::Node {
     public:
         PositionController();
         double compute_yaw(double qw, double qx, double qy, double qz);
-        void compute_control(double x, double y, double yaw, double &vc, double &wc);
+        void compute_control(double x, double y, double yaw, double &vc,
+                             double &wc);
         void get_goal(geometry_msgs::msg::PoseStamped::SharedPtr msg);
         void velocity_limit(double &vc, double &wc);
         void loop(nav_msgs::msg::Odometry::SharedPtr msg);

@@ -77,7 +77,12 @@ class CubicBezierBoxMarker(Node):
 
     def generate_bezier(self):
         t = np.linspace(0, 1, 100)
-        B_t = np.outer((1 - t) ** 3, self.P0) + np.outer(3 * t * (1 - t) ** 2, self.P1) + np.outer(3 * t**2 * (1 - t), self.P2) + np.outer(t**3, self.P3)
+        B_t = (
+            np.outer((1 - t) ** 3, self.P0)
+            + np.outer(3 * t * (1 - t) ** 2, self.P1)
+            + np.outer(3 * t**2 * (1 - t), self.P2)
+            + np.outer(t**3, self.P3)
+        )
         return B_t
 
     def create_path_msg(self):

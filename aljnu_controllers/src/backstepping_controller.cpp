@@ -6,7 +6,8 @@
 #include <iostream>
 #include <rclcpp/rclcpp.hpp>
 
-TrajectoryBacksteppingController::TrajectoryBacksteppingController() : Node("backstepping_controller") {
+TrajectoryBacksteppingController::TrajectoryBacksteppingController()
+    : Node("backstepping_controller") {
     this->declare_parameter<double>("limit.v", 0.0);
     this->declare_parameter<double>("limit.w", 0.0);
     this->declare_parameter<double>("controller_gain.k1", 0.0);
@@ -33,25 +34,40 @@ TrajectoryBacksteppingController::TrajectoryBacksteppingController() : Node("bac
 
     using std::placeholders::_1;
     twtpub_ = this->create_publisher<geometry_msgs::msg::Twist>(twist_topic, 10);
-    odomsub_ = this->create_subscription<nav_msgs::msg::Odometry>(odometry_topic, 10, std::bind(&TrajectoryBacksteppingController::loop, this, _1));
-    goalsub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(goal_topic, 10, std::bind(&TrajectoryBacksteppingController::get_goal, this, _1));
+    odomsub_ = this->create_subscription<nav_msgs::msg::Odometry>(
+        odometry_topic,
+        10,
+        std::bind(&TrajectoryBacksteppingController::loop, this, _1));
+    goalsub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
+        goal_topic,
+        10,
+        std::bind(&TrajectoryBacksteppingController::get_goal, this, _1));
 
-    RCLCPP_INFO(this->get_logger(), "Backstepping Controller Node is initialized!");
+    RCLCPP_INFO(this->get_logger(),
+                "Backstepping Controller Node is initialized!");
 }
 
-void TrajectoryBacksteppingController::get_goal(const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
+void TrajectoryBacksteppingController::get_goal(
+    const geometry_msgs::msg::PoseStamped::SharedPtr msg) {
     xref = msg->pose.position.x;
     yref = msg->pose.position.y;
-    yawref = compute_yaw(msg->pose.orientation.w, msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);
+    yawref = compute_yaw(msg->pose.orientation.w,
+                         msg->pose.orientation.x,
+                         msg->pose.orientation.y,
+                         msg->pose.orientation.z);
     vref = 0.0;
     wref = 0.0;
 }
 
-double TrajectoryBacksteppingController::compute_yaw(double qw, double qx, double qy, double qz) {
-    return atan2(2.0f * (qw * qz + qx * qy), qw * qw + qx * qx - qy * qy - qz * qz);
+double TrajectoryBacksteppingController::compute_yaw(double qw, double qx,
+                                                     double qy, double qz) {
+    return atan2(2.0f * (qw * qz + qx * qy),
+                 qw * qw + qx * qx - qy * qy - qz * qz);
 }
 
-void TrajectoryBacksteppingController::compute_control(double x, double y, double yaw, double &vc, double &wc) {
+void TrajectoryBacksteppingController::compute_control(double x, double y,
+                                                       double yaw, double &vc,
+                                                       double &wc) {
     double ex = xref - x;
     double ey = yref - y;
     double eyaw = yawref - yaw;
@@ -84,10 +100,15 @@ void TrajectoryBacksteppingController::velocity_limit(double &vc, double &wc) {
     }
 }
 
-void TrajectoryBacksteppingController::loop(const nav_msgs::msg::Odometry::SharedPtr msg) {
-    double yaw = compute_yaw(msg->pose.pose.orientation.w, msg->pose.pose.orientation.x, msg->pose.pose.orientation.y, msg->pose.pose.orientation.z);
+void TrajectoryBacksteppingController::loop(
+    const nav_msgs::msg::Odometry::SharedPtr msg) {
+    double yaw = compute_yaw(msg->pose.pose.orientation.w,
+                             msg->pose.pose.orientation.x,
+                             msg->pose.pose.orientation.y,
+                             msg->pose.pose.orientation.z);
 
-    compute_control(msg->pose.pose.position.x, msg->pose.pose.position.y, yaw, vc, wc);
+    compute_control(
+        msg->pose.pose.position.x, msg->pose.pose.position.y, yaw, vc, wc);
 
     velocity_limit(vc, wc);
 

@@ -27,15 +27,18 @@ void JoystickController::zeros_out_twist() {
     twist_publisher_->publish(twist_msg_);
 }
 
-LifecycleCallbackReturn JoystickController::on_configure(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+JoystickController::on_configure(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In Configure");
     (void)prev_state;
 
     // ROS
     scale_linear_vel_ = this->get_parameter("scale_linear_vel").as_double();
     scale_angular_vel_ = this->get_parameter("scale_angular_vel").as_double();
-    scale_linear_deadzone_ = this->get_parameter("scale_linear_deadzone").as_double();
-    scale_angular_deadzone_ = this->get_parameter("scale_angular_deadzone").as_double();
+    scale_linear_deadzone_ =
+        this->get_parameter("scale_linear_deadzone").as_double();
+    scale_angular_deadzone_ =
+        this->get_parameter("scale_angular_deadzone").as_double();
     cmd_topic_ = this->get_parameter("cmd_topic_name").as_string();
 
     twist_publisher_ = this->create_publisher<TwistMsg>(cmd_topic_, 10);
@@ -44,14 +47,18 @@ LifecycleCallbackReturn JoystickController::on_configure(const rclcpp_lifecycle:
     // Open  Hardware joystick device
     try_open_controller();
     if (joystick_fd_ < 0) {
-        RCLCPP_ERROR(this->get_logger(), "Failed to established connection to joystick device: %s", joystick_device_.c_str());
+        RCLCPP_ERROR(this->get_logger(),
+                     "Failed to established connection to joystick device: %s",
+                     joystick_device_.c_str());
         return LifecycleCallbackReturn::FAILURE;
     }
-    RCLCPP_INFO(this->get_logger(), "Successfully to established connection to joystick device.");
+    RCLCPP_INFO(this->get_logger(),
+                "Successfully to established connection to joystick device.");
     return LifecycleCallbackReturn::SUCCESS;
 }
 
-LifecycleCallbackReturn JoystickController::on_cleanup(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+JoystickController::on_cleanup(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In Cleanup");
     (void)prev_state;
 
@@ -66,7 +73,8 @@ LifecycleCallbackReturn JoystickController::on_cleanup(const rclcpp_lifecycle::S
     return LifecycleCallbackReturn::SUCCESS;
 }
 
-LifecycleCallbackReturn JoystickController::on_activate(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+JoystickController::on_activate(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In activate");
 
     // Start joystick reading thread
@@ -81,7 +89,8 @@ LifecycleCallbackReturn JoystickController::on_activate(const rclcpp_lifecycle::
     return LifecycleCallbackReturn::SUCCESS;
 }
 
-LifecycleCallbackReturn JoystickController::on_deactivate(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+JoystickController::on_deactivate(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In deactivate");
     running_ = false;
 
@@ -94,7 +103,8 @@ LifecycleCallbackReturn JoystickController::on_deactivate(const rclcpp_lifecycle
     return LifecycleCallbackReturn::SUCCESS;
 }
 
-LifecycleCallbackReturn JoystickController::on_shutdown(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+JoystickController::on_shutdown(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In shutdown");
     (void)prev_state;
 
@@ -103,7 +113,8 @@ LifecycleCallbackReturn JoystickController::on_shutdown(const rclcpp_lifecycle::
     return LifecycleCallbackReturn::SUCCESS;
 }
 
-LifecycleCallbackReturn JoystickController::on_error(const rclcpp_lifecycle::State &prev_state) {
+LifecycleCallbackReturn
+JoystickController::on_error(const rclcpp_lifecycle::State &prev_state) {
     RCLCPP_INFO(this->get_logger(), "In error");
     (void)prev_state;
 
@@ -127,7 +138,9 @@ void JoystickController::joystick_read() {
 
         if (bytes < 0) {
             if (errno != EAGAIN) { // Ignore non-blocking errors
-                RCLCPP_ERROR(this->get_logger(), "Error reading joystick: %s", strerror(errno));
+                RCLCPP_ERROR(this->get_logger(),
+                             "Error reading joystick: %s",
+                             strerror(errno));
                 running_ = false;
                 zeros_out_twist();
                 break;
@@ -139,12 +152,14 @@ void JoystickController::joystick_read() {
             if (event.type == JS_EVENT_AXIS) {
                 if (event.number == 1) {
                     linear = -scale_linear_vel_ * (event.value / 32767.0);
-                    if ((-scale_linear_deadzone_ <= linear) && (linear <= scale_linear_deadzone_)) {
+                    if ((-scale_linear_deadzone_ <= linear) &&
+                        (linear <= scale_linear_deadzone_)) {
                         linear = 0.0;
                     }
                 } else if (event.number == 3) {
                     angular = -scale_angular_vel_ * (event.value / 32767.0);
-                    if ((-scale_angular_deadzone_ <= angular) && (angular <= scale_angular_deadzone_)) {
+                    if ((-scale_angular_deadzone_ <= angular) &&
+                        (angular <= scale_angular_deadzone_)) {
                         angular = 0.0;
                     }
                 }
@@ -154,6 +169,7 @@ void JoystickController::joystick_read() {
             twist_msg_.angular.z = angular;
             twist_publisher_->publish(twist_msg_);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10)); // Avoid busy looping
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(10)); // Avoid busy looping
     }
 }

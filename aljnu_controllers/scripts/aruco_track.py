@@ -15,7 +15,9 @@ HcameraToRobot = rbt.ht(0.3, 0.01, 0.5) @ rbt.hry(np.pi / 2) @ rbt.hrz(-np.pi / 
 HArucoToCamera = rbt.ht(0.0, 0.0, 2.0) @ rbt.hrx(np.pi)
 HArucoToRobot = HcameraToRobot @ HArucoToCamera
 
-HRobotDesireToAruco = rbt.ht(0.0, 0.0, 0.5) @ rbt.hrx(-np.pi / 2) @ rbt.hrz(np.pi / 2)
+HRobotDesireToAruco = (
+    rbt.ht(0.0, 0.0, 0.5) @ rbt.hrx(-np.pi / 2) @ rbt.hrz(np.pi / 2)
+)
 HRobotDesireToRobot = HArucoToRobot @ HRobotDesireToAruco
 
 # # robot base main
@@ -32,7 +34,9 @@ HRobotDesireToRobot = HArucoToRobot @ HRobotDesireToAruco
 HCameraToAruco = rbt.hinverse(HArucoToCamera)
 HRobotToAruco = rbt.hinverse(HArucoToRobot)
 
-HRobotDesireToAruco = rbt.ht(0.0, 0.0, 0.5) @ rbt.hrx(-np.pi / 2) @ rbt.hrz(np.pi / 2)
+HRobotDesireToAruco = (
+    rbt.ht(0.0, 0.0, 0.5) @ rbt.hrx(-np.pi / 2) @ rbt.hrz(np.pi / 2)
+)
 HRobotDesireToAruco[1, 3] = HRobotToAruco[1, 3]
 
 ax = make_3d_axis(ax_s=1, unit="m", n_ticks=6)
@@ -43,5 +47,5 @@ plot_transform(ax, A2B=HRobotToAruco, s=0.1, name="robot")
 plt.tight_layout()
 plt.show()
 
-HRobotToRobotDesire =  rbt.hinverse(HRobotDesireToAruco) @ HRobotToAruco
+HRobotToRobotDesire = rbt.hinverse(HRobotDesireToAruco) @ HRobotToAruco
 print(f"> HRobotToRobotDesire: {HRobotToRobotDesire}")

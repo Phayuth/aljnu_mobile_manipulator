@@ -46,7 +46,8 @@ class TrajectoryBacksteppingController : public rclcpp::Node {
     public:
         TrajectoryBacksteppingController();
         double compute_yaw(double qw, double qx, double qy, double qz);
-        void compute_control(double x, double y, double yaw, double &vc, double &wc);
+        void compute_control(double x, double y, double yaw, double &vc,
+                             double &wc);
         void get_goal(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
         void velocity_limit(double &vc, double &wc);
         void loop(const nav_msgs::msg::Odometry::SharedPtr msg);

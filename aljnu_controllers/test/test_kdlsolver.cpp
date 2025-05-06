@@ -4,7 +4,9 @@
 #include <string>
 
 TEST(KDLSolverTest, VerifyFunctions) {
-    std::string urdf_file = ament_index_cpp::get_package_share_directory("aljnu_description") + "/urdf/ur5e.urdf";
+    std::string urdf_file =
+        ament_index_cpp::get_package_share_directory("aljnu_description") +
+        "/urdf/ur5e.urdf";
     KDLSolver kdlsolver(urdf_file, "ur5e_base_link", "ur5e_tool0");
 
     testing::internal::CaptureStdout();

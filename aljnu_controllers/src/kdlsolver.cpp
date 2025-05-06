@@ -1,6 +1,7 @@
 #include "aljnu_controllers/kdlsolver.h"
 
-KDLSolver::KDLSolver(const std::string &urdf_file, const std::string &base, const std::string &tip) {
+KDLSolver::KDLSolver(const std::string &urdf_file, const std::string &base,
+                     const std::string &tip) {
     bool loaded_success = robot_model.initFile(urdf_file);
     if (loaded_success) {
         std::cout << "successfully loaded model." << std::endl;
@@ -35,7 +36,8 @@ bool KDLSolver::fk_pos(KDL::JntArray &q, KDL::Frame &H) {
     return fk_pos_solver->JntToCart(q, H);
 }
 
-bool KDLSolver::ik_pos(KDL::Frame &H, KDL::JntArray &q_init, KDL::JntArray &q_out) {
+bool KDLSolver::ik_pos(KDL::Frame &H, KDL::JntArray &q_init,
+                       KDL::JntArray &q_out) {
     if (q_init.rows() != numjoints) {
         return false;
     }
@@ -43,13 +45,15 @@ bool KDLSolver::ik_pos(KDL::Frame &H, KDL::JntArray &q_init, KDL::JntArray &q_ou
 }
 
 bool KDLSolver::jacobian(KDL::Jacobian &jac, KDL::JntArray &q) {
-    if ((q.rows() != numjoints) || jac.columns() != numjoints || jac.rows() != numjoints) {
+    if ((q.rows() != numjoints) || jac.columns() != numjoints ||
+        jac.rows() != numjoints) {
         return false;
     }
     return jac_solver->JntToJac(q, jac);
 }
 
-bool KDLSolver::ik_vel(KDL::JntArray q_init, KDL::Twist &v_tip, KDL::JntArray &q_dot) {
+bool KDLSolver::ik_vel(KDL::JntArray q_init, KDL::Twist &v_tip,
+                       KDL::JntArray &q_dot) {
     if (q_dot.rows() != numjoints) {
         return false;
     }
@@ -69,7 +73,8 @@ bool KDLSolver::_verify_ik_pos() {
     KDL::JntArray q(6);
     q.data << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 
-    KDL::Rotation rin(0.280, 0.957, 0.077, 0.075, 0.058, -0.995, -0.957, 0.284, -0.056);
+    KDL::Rotation rin(
+        0.280, 0.957, 0.077, 0.075, 0.058, -0.995, -0.957, 0.284, -0.056);
     KDL::Vector tin(0.112, -0.275, 0.294);
     KDL::Frame pin(rin, tin);
     KDL::JntArray qout(6);
