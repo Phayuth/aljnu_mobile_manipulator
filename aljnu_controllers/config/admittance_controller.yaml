@@ -2,10 +2,38 @@ admittance_controller:
   ros__parameters:
     ft_sensor_tf: ur5e_ft_sensor
     base_tf: ur5e_base_link
-    joint_command_topic: /forward_velocity_controller/command
-    ft_wrench_topic: /wrench
+    joint_command_topic: /forward_velocity_controller/commands
+    ft_wrench_topic: /force_torque_sensor_broadcaster/wrench
 
-    # matrix should be written in row major
-    M_matrix: []
-    B_matrix: []
-    K_matrix: []
+    # admittance control parameters
+    applied_axis:
+      - true
+      - true
+      - true
+      - true
+      - true
+      - true
+
+    mass:
+      - 1.4
+      - 1.2
+      - 2.3
+      - 2.1
+      - 1.3
+      - 3.3
+
+    damping:
+      - 2.828427
+      - 2.828427
+      - 2.828427
+      - 2.828427
+      - 2.828427
+      - 2.828427
+
+    stiffness:
+      - 214.1
+      - 214.1
+      - 214.1
+      - 214.1
+      - 214.1
+      - 214.1

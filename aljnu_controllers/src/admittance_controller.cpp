@@ -7,6 +7,11 @@ AdmittanceController::AdmittanceController() : LifecycleNode("admittance_control
     this->declare_parameter<std::string>("base_tf", "/base_link");
     this->declare_parameter<std::string>("joint_command_topic", "/command");
     this->declare_parameter<std::string>("ft_wrench_topic", "/wrench");
+
+    this->declare_parameter<std::vector<bool>>("applied_axis", {false, false, false, false, false, false});
+    this->declare_parameter<std::vector<double>>("mass", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    this->declare_parameter<std::vector<double>>("damping", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    this->declare_parameter<std::vector<double>>("stiffness", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
 }
 
 AdmittanceController::~AdmittanceController() {
@@ -59,6 +64,11 @@ LifecycleCallbackReturn AdmittanceController::on_configure(const rclcpp_lifecycl
     base_tf_ = this->get_parameter("base_tf").as_string();
     joint_command_topic_ = this->get_parameter("joint_command_topic").as_string();
     ft_wrench_topic_ = this->get_parameter("ft_wrench_topic").as_string();
+
+    applied_axis = this->get_parameter("applied_axis").as_bool_array();
+    mass = this->get_parameter("mass").as_double_array();
+    damping = this->get_parameter("damping").as_double_array();
+    stiffness = this->get_parameter("stiffness").as_double_array();
 
     pub_ = this->create_publisher<FloatMsg>(joint_command_topic_, 10);
     sub_ = this->create_subscription<WrenchMsg>(ft_wrench_topic_, 10, std::bind(&AdmittanceController::wrench_callback, this, std::placeholders::_1));

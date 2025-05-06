@@ -23,6 +23,11 @@ class AdmittanceController : public rclcpp_lifecycle::LifecycleNode {
         std::string joint_command_topic_;
         std::string ft_wrench_topic_;
 
+        std::vector<bool> applied_axis;
+        std::vector<double> mass;
+        std::vector<double> damping;
+        std::vector<double> stiffness;
+
         FloatMsg joint_value;
 
         rclcpp::Publisher<FloatMsg>::SharedPtr pub_;
