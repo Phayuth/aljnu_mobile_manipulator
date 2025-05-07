@@ -24,6 +24,15 @@ TEST(KDLSolverTest, VerifyFunctions) {
     std::string jac_output = testing::internal::GetCapturedStdout();
     std::cout << "Jacobian Output:\n" << jac_output;
 
+    testing::internal::CaptureStdout();
+    kdlsolver._verify_transform_frame();
+    std::string tranframe = testing::internal::GetCapturedStdout();
+    std::cout << "Tranform Frame:\n" << tranframe;
+
+    testing::internal::CaptureStdout();
+    kdlsolver._verify_transform_wrench();
+    std::string tranwren = testing::internal::GetCapturedStdout();
+    std::cout << "Transform Wrench:\n" << tranwren;
     // Dummy assertion to ensure the test passes
     ASSERT_EQ(1, 1);
 }

@@ -8,7 +8,7 @@
 #include <rclcpp_lifecycle/lifecycle_node.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
 
-// #include <aljnu_controllers/kdlsolver.h>
+#include <aljnu_controllers/kdlsolver.h>
 #include <tf2_eigen/tf2_eigen.hpp>
 #include <tf2_eigen_kdl/tf2_eigen_kdl.hpp>
 
@@ -28,6 +28,7 @@ class AdmittanceController : public rclcpp_lifecycle::LifecycleNode {
         std::vector<double> damping;
         std::vector<double> stiffness;
 
+        std::unique_ptr<KDLSolver> kdlsolver;
         FloatMsg joint_value;
 
         rclcpp::Publisher<FloatMsg>::SharedPtr pub_;

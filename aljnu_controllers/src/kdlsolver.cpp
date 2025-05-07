@@ -36,6 +36,13 @@ bool KDLSolver::fk_pos(KDL::JntArray &q, KDL::Frame &H) {
     return fk_pos_solver->JntToCart(q, H);
 }
 
+bool KDLSolver::fk_vel(KDL::JntArray &q, KDL::JntArray &q_dot,
+                       KDL::FrameVel &H_Hdot) {
+    KDL::JntArrayVel q_qdot(q, q_dot);
+
+    return fk_vel_solver->JntToCart(q_qdot, H_Hdot);
+}
+
 bool KDLSolver::ik_pos(KDL::Frame &H, KDL::JntArray &q_init,
                        KDL::JntArray &q_out) {
     if (q_init.rows() != numjoints) {
@@ -50,6 +57,19 @@ bool KDLSolver::jacobian(KDL::Jacobian &jac, KDL::JntArray &q) {
         return false;
     }
     return jac_solver->JntToJac(q, jac);
+}
+
+bool KDLSolver::transform_frame(KDL::Frame &parent, KDL::Frame &child,
+                                KDL::Frame &child_to_parent) {
+    child_to_parent = parent * child;
+    return true;
+}
+
+bool KDLSolver::transform_wrench(KDL::Frame &wrench_origin_to_parent,
+                                 KDL::Wrench &wrench_in_origin,
+                                 KDL::Wrench &wrench_in_parent) {
+    wrench_in_parent = wrench_origin_to_parent * wrench_in_origin;
+    return true;
 }
 
 bool KDLSolver::ik_vel(KDL::JntArray q_init, KDL::Twist &v_tip,
@@ -109,4 +129,40 @@ bool KDLSolver::_verify_jac() {
     std::cout << q_dot_computed.data << std::endl;
     std::cout << "Is q_dot the same ? " << (q_dot_computed == q_dot) << std::endl;
     return (q_dot_computed == q_dot);
+}
+
+bool KDLSolver::_verify_transform_frame() {
+    KDL::Vector pCToB(0.0, 1.0, 0.0);
+    KDL::Rotation RCToB;
+    RCToB.Identity();
+    KDL::Frame HCToB(RCToB, pCToB);
+
+    KDL::Vector pBToA(1.0, 0.0, 0.0);
+    KDL::Rotation RBToA;
+    RBToA.Identity();
+    KDL::Frame HBToA(RBToA, pBToA);
+
+    KDL::Frame HCToA;
+    transform_frame(HBToA, HCToB, HCToA);
+
+    std::cout << HCToA << std::endl;
+    return true;
+}
+
+bool KDLSolver::_verify_transform_wrench() {
+    KDL::JntArray q(6);
+    q.data << 0.0, -1.57, 1.57, 0.0, 1.57, 1.57;
+
+    KDL::Frame sensor_origin_to_base;
+    fk_pos(q, sensor_origin_to_base);
+
+    KDL::Vector force(0.0, 0.0, -50.0);
+    KDL::Vector torque(0.0, 0.0, 0.0);
+    KDL::Wrench wrench_in_origin(force, torque);
+
+    KDL::Wrench wrench_in_base;
+
+    transform_wrench(sensor_origin_to_base, wrench_in_origin, wrench_in_base);
+    std::cout << wrench_in_base << std::endl;
+    return true;
 }

@@ -1,6 +1,6 @@
 admittance_controller:
   ros__parameters:
-    ft_sensor_tf: ur5e_ft_sensor
+    ft_sensor_tf: ur5e_tool0
     base_tf: ur5e_base_link
     joint_command_topic: /forward_velocity_controller/commands
     ft_wrench_topic: /force_torque_sensor_broadcaster/wrench

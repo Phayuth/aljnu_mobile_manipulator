@@ -1,4 +1,5 @@
 #include "aljnu_controllers/admittance_controller.h"
+#include <ament_index_cpp/get_package_share_directory.hpp>
 
 AdmittanceController::AdmittanceController()
     : LifecycleNode("admittance_controller") {
@@ -23,23 +24,37 @@ AdmittanceController::~AdmittanceController() {
 }
 
 void AdmittanceController::wrench_callback(const WrenchMsg::SharedPtr msg) {
-    // TODO: DO your admittance here by converting force to tip velocity.
-    // using wrench data here
-    msg->wrench.force.x;
-    msg->wrench.force.y;
-    msg->wrench.force.z;
-    msg->wrench.torque.x;
-    msg->wrench.torque.y;
-    msg->wrench.torque.z;
+    // get wrench data in ft_frame
+    KDL::Vector force(
+        msg->wrench.force.x, msg->wrench.force.y, msg->wrench.force.z);
+    KDL::Vector torque(
+        msg->wrench.torque.x, msg->wrench.torque.y, msg->wrench.torque.z);
+    KDL::Wrench tool0wrench;
+
+    // get joint position and velocity
+    KDL::JntArray q;
+    KDL::JntArray q_dot;
+    KDL::FrameVel H_Hdot;
+    kdlsolver->fk_vel(q, q_dot, H_Hdot);
+
+    // convert wrench tool to wrench base
+    KDL::Frame HwrenchInbase = H_Hdot.GetFrame();
+    KDL::Wrench basewrench;
+    kdlsolver->transform_wrench(HwrenchInbase, tool0wrench, basewrench);
 
     // Wrench -> admittance -> Twist (tip)
-    // Careful when when transform data in frame;
-    // geometry_msgs::msg::WrenchStamped wrench_in_base;
     // tf2::doTransform(wrench_in_tip, wrench_in_base, transform_tip_to_base);
 
     // make twist data
-    KDL::Vector lin_vel(0.1, 0.0, 0.0);
-    KDL::Vector rot_vel(0.1, 0.0, 0.0);
+    KDL::Twist Hdot_tool0Inbase = H_Hdot.GetTwist();
+    KDL::Vector lin_vel(
+        (1.0 / mass[0]) * (basewrench.force[0] - damping[0] * Hdot_tool0Inbase[0] -
+                           stiffness[0] * HwrenchInbase.p[0]),
+        (1.0 / mass[1]) * (basewrench.force[1] - damping[1] * Hdot_tool0Inbase[1] -
+                           stiffness[1] * HwrenchInbase.p[1]),
+        (1.0 / mass[2]) * (basewrench.force[2] - damping[2] * Hdot_tool0Inbase[2] -
+                           stiffness[2] * HwrenchInbase.p[2]));
+    KDL::Vector rot_vel(0.0, 0.0, 0.0);
     KDL::Twist v_tip(lin_vel, rot_vel);
 
     // use kdlsolver to compute q_dot from twist
@@ -82,6 +97,11 @@ AdmittanceController::on_configure(const rclcpp_lifecycle::State &prev_state) {
         10,
         std::bind(
             &AdmittanceController::wrench_callback, this, std::placeholders::_1));
+
+    std::string urdf_file =
+        ament_index_cpp::get_package_share_directory("aljnu_description") +
+        "/urdf/ur5e.urdf";
+    kdlsolver = std::make_unique<KDLSolver>(urdf_file, base_tf_, ft_sensor_tf_);
     if (false) {
         return LifecycleCallbackReturn::FAILURE;
     }

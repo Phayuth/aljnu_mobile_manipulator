@@ -29,15 +29,23 @@ class KDLSolver {
         ~KDLSolver();
 
         bool fk_pos(KDL::JntArray &q, KDL::Frame &H);
-        bool fk_vel();
+        bool fk_vel(KDL::JntArray &q, KDL::JntArray &q_dot, KDL::FrameVel &H_Hdot);
         bool ik_pos(KDL::Frame &H, KDL::JntArray &q_init, KDL::JntArray &q_out);
         bool ik_vel(KDL::JntArray q_init, KDL::Twist &v_tip, KDL::JntArray &q_dot);
         bool jacobian(KDL::Jacobian &jac, KDL::JntArray &q);
+
+        bool transform_frame(KDL::Frame &parent, KDL::Frame &child,
+                             KDL::Frame &child_to_parent);
+        bool transform_wrench(KDL::Frame &wrench_origin_to_parent,
+                              KDL::Wrench &wrench_in_origin,
+                              KDL::Wrench &wrench_in_parent);
 
         bool _verify_fk_pos();
         bool _verify_fk_vel();
         bool _verify_ik_pos();
         bool _verify_jac();
+        bool _verify_transform_frame();
+        bool _verify_transform_wrench();
 };
 
 #endif

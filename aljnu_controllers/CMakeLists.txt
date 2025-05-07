@@ -31,7 +31,7 @@ ament_target_dependencies(backstepping_controller rclcpp geometry_msgs nav_msgs)
 add_executable(joystick_controller src/joystick_controller.cpp src/main_joystick.cpp)
 ament_target_dependencies(joystick_controller rclcpp rclcpp_lifecycle geometry_msgs)
 
-add_executable(admittance_controller src/admittance_controller.cpp src/main_admittance.cpp)
+add_executable(admittance_controller src/admittance_controller.cpp src/main_admittance.cpp src/kdlsolver.cpp)
 ament_target_dependencies(admittance_controller rclcpp rclcpp_lifecycle geometry_msgs tf2_eigen kdl_parser urdf orocos_kdl Eigen3 tf2_eigen_kdl)
 
 install(TARGETS
