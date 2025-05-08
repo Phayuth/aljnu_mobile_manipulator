@@ -10,6 +10,7 @@ include_directories(include)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
@@ -32,7 +33,7 @@ add_executable(joystick_controller src/joystick_controller.cpp src/main_joystick
 ament_target_dependencies(joystick_controller rclcpp rclcpp_lifecycle geometry_msgs)
 
 add_executable(admittance_controller src/admittance_controller.cpp src/main_admittance.cpp src/kdlsolver.cpp)
-ament_target_dependencies(admittance_controller rclcpp rclcpp_lifecycle geometry_msgs tf2_eigen kdl_parser urdf orocos_kdl Eigen3 tf2_eigen_kdl)
+ament_target_dependencies(admittance_controller rclcpp rclcpp_lifecycle geometry_msgs sensor_msgs tf2_eigen kdl_parser urdf orocos_kdl Eigen3 tf2_eigen_kdl)
 
 install(TARGETS
   position_controller
