@@ -65,8 +65,6 @@ void AdmittanceController::get_wrench_current(const WrenchMsg::SharedPtr msg) {
             alpha * msg->wrench.torque.x + (1 - alpha) * oldwrench.torque[0],
             alpha * msg->wrench.torque.y + (1 - alpha) * oldwrench.torque[1],
             alpha * msg->wrench.torque.z + (1 - alpha) * oldwrench.torque[2]));
-    // tool0wrench =
-    //     KDL::Wrench(KDL::Vector(0.0, 0.0, 0.0), KDL::Vector(0.0, 0.0, 0.0));
 
     oldwrench = tool0wrench;
     // RCLCPP_INFO(get_logger(), "I got wrench.");
@@ -96,7 +94,7 @@ void AdmittanceController::compute_admittance() {
                 (basewrench.force[2] - damping[2] * Hdot_tool0InBase_current[2] -
                  stiffness[2] *
                      (H_tool0InBase_current.p[2] - H_tool0InBase_0.p[2]))),
-        KDL::Vector(0.0, 0.0, 0.0));
+        KDL::Vector(0.0, 0.0, 0.0)); // TODO: Compute rotational admittance.
 
     // use kdlsolver to compute q_dot from twist
     kdlsolver->ik_vel(q_current, Hdot_tool0InBase_desired, qdot_command);
@@ -123,11 +121,12 @@ void AdmittanceController::loop() {
     joint_value.data[4] = qdot_command.data[4];
     joint_value.data[5] = qdot_command.data[5];
 
-    std::ostringstream oss;
-    oss << qdot_command.data.transpose().format(Eigen::IOFormat(
-        Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", "", "", "", "[", "]"));
-    std::string qdot_command_str = oss.str();
-    RCLCPP_INFO(get_logger(), "qdot_command: [%s]", qdot_command_str.c_str());
+    // std::ostringstream oss;
+    // oss << qdot_command.data.transpose().format(Eigen::IOFormat(
+    //     Eigen::StreamPrecision, Eigen::DontAlignCols, ", ", "", "", "", "[",
+    //     "]"));
+    // std::string qdot_command_str = oss.str();
+    // RCLCPP_INFO(get_logger(), "qdot_command: [%s]", qdot_command_str.c_str());
 
     pub_->publish(joint_value);
 }

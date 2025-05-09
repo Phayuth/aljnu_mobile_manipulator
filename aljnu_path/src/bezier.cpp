@@ -33,3 +33,6 @@ void Bezier::compute_velo(double t) {
 
 void Bezier::compute_accl(double t) {
 }
+
+void Bezier::create_box_marker(){
+}
