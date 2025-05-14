@@ -2,8 +2,6 @@ import os
 import launch
 import launch_ros
 
-from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import FindExecutable, PathJoinSubstitution

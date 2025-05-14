@@ -1,25 +1,23 @@
-import os
-import xacro
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
-from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+import os
+from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
-    onrobotsg_config_file = os.path.join(get_package_share_directory("aljnu_description"), "config", "sg", "hardware_paremeters.yaml")
-    realsense_config_file = os.path.join(get_package_share_directory("aljnu_description"), "config", "realsense", "realsense.yaml")
-
-    ld = []
-    ld.append(
-        Node(
-            package="onrobotsg",
-            executable="onrobotsg_service",
-            name="onrobotsg_node",
-            parameters=[onrobotsg_config_file],
-            output="screen",
-        ),
+    config = os.path.join(
+        get_package_share_directory("aljnu_description"),
+        "config",
+        "robotiq85",
+        "robotiq85.yaml",
     )
 
-    return LaunchDescription(ld)
+    gripper_node = Node(
+        package="robotiq2f",
+        executable="robotiq85_service",
+        name="robotiq_85_node",
+        output="screen",
+        parameters=[config],
+    )
+
+    return LaunchDescription([gripper_node])
