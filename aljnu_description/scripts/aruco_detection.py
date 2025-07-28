@@ -1,0 +1,138 @@
+import cv2
+import numpy as np
+
+
+class Camera:
+
+    def __init__(self):
+        self.w = 640
+        self.h = 480
+        self.info = {}
+        self.capture = cv2.VideoCapture(4)
+
+    @classmethod
+    def fake(cls):
+        camera = cls()
+        camera.info["k"] = np.array(
+            [
+                [599.639625, 0.0, 328.841620],
+                [0.0, 602.139246, 232.169169],
+                [0.0, 0.0, 1.0],
+            ]
+        )
+        camera.info["d"] = np.array(
+            [0.143990, -0.280626, 0.002779, -0.000829, 0.000000]
+        )
+        return camera
+
+    @classmethod
+    def from_parameters(cls, k, d):
+        camera = cls()
+        camera.info["k"] = np.array(k)
+        camera.info["d"] = np.array(d)
+        return camera
+
+    def reading(self):
+        if not self.capture.isOpened():
+            raise RuntimeError("Failed to open camera")
+        while True:
+            ret, frame = self.capture.read()
+            if not ret:
+                raise RuntimeError("Failed to read frame from camera")
+            cv2.imshow("Camera Feed", frame)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+        self.capture.release()
+        cv2.destroyAllWindows()
+
+
+class ARUCOBoardPose:
+    # https://docs.opencv.org/4.9.0/db/da9/tutorial_aruco_board_detection.html
+    def __init__(self) -> None:
+        # detection
+        self.dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
+        self.board = cv2.aruco.GridBoard(
+            (5, 7), 0.0275, 0.006875, self.dictionary, None
+        )
+        self.detectorParams = cv2.aruco.DetectorParameters()
+        self.detector = cv2.aruco.ArucoDetector(
+            self.dictionary, self.detectorParams
+        )
+
+    def run(self, camera, imgraw):
+        corners, ids, rej = self.detector.detectMarkers(imgraw)
+        if ids is not None:
+            cv2.aruco.drawDetectedMarkers(imgraw, corners, ids)  # aruco corner
+
+            objPoints, imgPoints = self.board.matchImagePoints(
+                corners, ids, None, None
+            )
+
+            retval, rvc, tvc = cv2.solvePnP(
+                objPoints,
+                imgPoints,
+                camera.info["k"],
+                camera.info["d"],
+                None,
+                None,
+                False,
+            )
+            R, _ = cv2.Rodrigues(rvc)
+
+            if objPoints is not None:
+                cv2.drawFrameAxes(
+                    imgraw, camera.info["k"], camera.info["d"], rvc, tvc, 0.1, 3
+                )
+
+            return tvc, R
+
+
+class ARUCOGenerate:
+
+    def __init__(self) -> None:
+        self.dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_6X6_250)
+        size = (5, 7)
+        markerLength = 0.04
+        markerSeparation = 0.01
+        self.board = cv2.aruco.GridBoard(
+            size, markerLength, markerSeparation, self.dictionary, None
+        )
+        print(self.board)
+        print(dir(self.board))
+        print(dir(self.board.generateImage))
+        image = self.board.generateImage(
+            outSize=(500, 700), marginSize=10, borderBits=1
+        )
+
+        cv2.imwrite("aruco_board.png", image)
+        image = cv2.imread("aruco_board.png")
+        cv2.imshow("ARUCO Board", image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+
+class CameraAruco:
+
+    def __init__(self):
+        self.camera = Camera.fake()
+        self.aruco_board = ARUCOBoardPose()
+
+    def run(self):
+        while True:
+            ret, frame = self.camera.capture.read()
+            if not ret:
+                break
+            pose = self.aruco_board.run(self.camera, frame)
+            cv2.imshow("ARUCO Detection", frame)
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+        self.camera.capture.release()
+        cv2.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    # c = Camera.fake()
+    # c.reading()
+    # a = ARUCOGenerate()
+    ca = CameraAruco()
+    ca.run()
