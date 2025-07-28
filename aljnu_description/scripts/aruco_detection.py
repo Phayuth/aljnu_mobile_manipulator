@@ -7,29 +7,28 @@ class Camera:
     def __init__(self):
         self.w = 640
         self.h = 480
-        self.info = {}
+        self.k = None
+        self.d = None
         self.capture = cv2.VideoCapture(4)
 
     @classmethod
     def fake(cls):
         camera = cls()
-        camera.info["k"] = np.array(
+        camera.k = np.array(
             [
                 [599.639625, 0.0, 328.841620],
                 [0.0, 602.139246, 232.169169],
                 [0.0, 0.0, 1.0],
             ]
         )
-        camera.info["d"] = np.array(
-            [0.143990, -0.280626, 0.002779, -0.000829, 0.000000]
-        )
+        camera.d = np.array([0.143990, -0.280626, 0.002779, -0.000829, 0.000000])
         return camera
 
     @classmethod
     def from_parameters(cls, k, d):
         camera = cls()
-        camera.info["k"] = np.array(k)
-        camera.info["d"] = np.array(d)
+        camera.k = np.array(k)
+        camera.d = np.array(d)
         return camera
 
     def reading(self):
@@ -59,7 +58,7 @@ class ARUCOBoardPose:
             self.dictionary, self.detectorParams
         )
 
-    def run(self, camera, imgraw):
+    def run(self, camera_k, camera_d, imgraw):
         corners, ids, rej = self.detector.detectMarkers(imgraw)
         if ids is not None:
             cv2.aruco.drawDetectedMarkers(imgraw, corners, ids)  # aruco corner
@@ -71,8 +70,8 @@ class ARUCOBoardPose:
             retval, rvc, tvc = cv2.solvePnP(
                 objPoints,
                 imgPoints,
-                camera.info["k"],
-                camera.info["d"],
+                camera_k,
+                camera_d,
                 None,
                 None,
                 False,
@@ -81,7 +80,13 @@ class ARUCOBoardPose:
 
             if objPoints is not None:
                 cv2.drawFrameAxes(
-                    imgraw, camera.info["k"], camera.info["d"], rvc, tvc, 0.1, 3
+                    imgraw,
+                    camera_k,
+                    camera_d,
+                    rvc,
+                    tvc,
+                    0.1,
+                    3,
                 )
 
             return tvc, R
@@ -97,9 +102,7 @@ class ARUCOGenerate:
         self.board = cv2.aruco.GridBoard(
             size, markerLength, markerSeparation, self.dictionary, None
         )
-        print(self.board)
-        print(dir(self.board))
-        print(dir(self.board.generateImage))
+
         image = self.board.generateImage(
             outSize=(500, 700), marginSize=10, borderBits=1
         )
@@ -122,7 +125,7 @@ class CameraAruco:
             ret, frame = self.camera.capture.read()
             if not ret:
                 break
-            pose = self.aruco_board.run(self.camera, frame)
+            pose = self.aruco_board.run(self.camera.k, self.camera.d, frame)
             cv2.imshow("ARUCO Detection", frame)
             if cv2.waitKey(1) & 0xFF == ord("q"):
                 break
