@@ -1,6 +1,5 @@
 import rclpy
 from rclpy.node import Node
-import cv2
 import numpy as np
 from aruco_detection import ARUCOBoardPose
 from sensor_msgs.msg import Image, CameraInfo
@@ -32,13 +31,13 @@ class ArucoDetectionNode(Node):
         # ros
         self.camera_sub = self.create_subscription(
             Image,
-            "/camera/image_raw",
+            "/camera/camera/color/image_raw",
             self.image_callback,
             10,
         )
         self.camera_info_sub = self.create_subscription(
             CameraInfo,
-            "/camera/camera_info",
+            "/camera/camera/color/camera_info",
             self.camera_info_callback,
             10,
         )
@@ -63,19 +62,23 @@ class ArucoDetectionNode(Node):
         try:
             cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
 
-            pos, R = self.aruco_board_pose.run(
+            res = self.aruco_board_pose.run(
                 self.camera_k,
                 self.camera_d,
                 cv_image,
             )
-            T = np.eye(4)
-            T[:3, :3] = R
-            T[:3, 3] = pos
-            pq = t3d.pq_from_transform(T)
-            self.pub_tf(pq[:3], pq[3:7])
+            if res is not None:
+                pos, R = res
+                print(f"Position: {pos}, Rotation: {R}")
+                T = np.eye(4)
+                T[:3, :3] = R
+                T[:3, 3] = pos.flatten()
+                pq = t3d.pq_from_transform(T)
+                self.pub_tf(pq[:3], pq[3:7])
 
-            ros_image = self.bridge.cv2_to_imgmsg(cv_image, "bgr8")
-            self.camera_pub.publish(ros_image)
+                msg = self.bridge.cv2_to_imgmsg(cv_image, "bgr8")
+
+            self.camera_pub.publish(msg)
 
         except CvBridgeError as e:
             self.get_logger().error(f"Error converting image: {e}")
@@ -85,7 +88,6 @@ class ArucoDetectionNode(Node):
         self.camera_d = np.array(msg.d)
         self.get_logger().info(f"Camera K: {self.camera_k}")
         self.get_logger().info(f"Camera D: {self.camera_d}")
-        self.camera_info_sub.destroy()
         self.save_info = True
 
     def pub_tf(self, position, orientation):

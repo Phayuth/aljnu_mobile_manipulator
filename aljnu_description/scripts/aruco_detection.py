@@ -90,6 +90,7 @@ class ARUCOBoardPose:
                 )
 
             return tvc, R
+        return None
 
 
 class ARUCOGenerate:
@@ -133,9 +134,27 @@ class CameraAruco:
         cv2.destroyAllWindows()
 
 
+def generate_aruco_board():
+    aruco_gen = ARUCOGenerate()
+
+
+def detect_aruco_board():
+    camera_aruco = CameraAruco()
+    camera_aruco.run()
+
+
 if __name__ == "__main__":
-    # c = Camera.fake()
-    # c.reading()
-    # a = ARUCOGenerate()
-    ca = CameraAruco()
-    ca.run()
+
+    func = [
+        generate_aruco_board,
+        detect_aruco_board,
+    ]
+    for i, f in enumerate(func):
+        print(f"{i+1}: {f.__name__}")
+
+    arg = input("Select function to run: ")
+    if arg.isdigit() and 1 <= int(arg) < len(func):
+        func[int(arg - 1)]()
+    else:
+        print("Invalid selection. Exiting.")
+        exit(1)
